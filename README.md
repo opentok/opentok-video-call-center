@@ -2,6 +2,8 @@
 
 This demo showcases a simulation of call center where callers queue up to talk to available agents using OpenTok.
 
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kaustavdm/opentok-call-center-demo)
+
 ## Install
 
 Install NodeJS v8.0+

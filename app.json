@@ -1,0 +1,18 @@
+
+{
+  "addons": [],
+  "buildpacks": [],
+  "env": {
+    "OPENTOK_API_KEY": {
+      "description": "API key from OpenTok",
+      "required": true
+    },
+    "OPENTOK_API_SECRET": {
+      "description": "API secret from OpeTok",
+      "required": true
+    }
+  },
+  "formation": {},
+  "name": "opentok-call-center-demo",
+  "scripts": {}
+}
