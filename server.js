@@ -70,36 +70,30 @@ Caller.prototype.status = function () {
 Caller.prototype.startCall = function () {
   this.onCallSince = new Date()
   this.agentConnected = true
-  OT.signal(this.sessionId, { type: 'agentConnected', data: this.status() }, (err) => {
+  OT.signal(this.sessionId, null, { type: 'agentConnected', data: JSON.stringify(this.status()) }, function (err) {
     if (err) {
       console.log(err)
-      return
     }
-    console.log(`Agent connected to caller ${this.callerId}`)
   })
 }
 
 Caller.prototype.hold = function () {
   this.onHold = true
   this.agentConnected = false
-  OT.signal(this.sessionId, { type: 'hold', data: this.status() }, (err) => {
+  OT.signal(this.sessionId, null, { type: 'hold', data: JSON.stringify(this.status()) }, function (err) {
     if (err) {
       console.log(err)
-      return
     }
-    console.log(`On hold: caller ${this.callerId}`)
   })
 }
 
 Caller.prototype.unhold = function () {
   this.onHold = false
   this.agentConnected = true
-  OT.signal(this.sessionId, { type: 'unhold', data: this.status() }, (err) => {
+  OT.signal(this.sessionId, null, { type: 'unhold', data: JSON.stringify(this.status()) }, function (err) {
     if (err) {
       console.log(err)
-      return
     }
-    console.log(`Remove call hold: caller ${this.callerId}`)
   })
 }
 
@@ -191,6 +185,12 @@ app.get('/call/:id', (req, res, next) => {
   }
   res.status(200).json({
     caller: c.status()
+  })
+})
+
+app.get('/calls', (req, res, next) => {
+  res.status(200).json({
+    callers: Array.from(callers.values()).map(c => c.status())
   })
 })
 
