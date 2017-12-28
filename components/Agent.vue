@@ -23,9 +23,9 @@
       </div>
     </div>
     <div>
-      <div v-if="callerSession">
-        <!-- <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session"></subscriber> -->
-        <publisher :session="callerSession" @error="errorHandler"></publisher>
+      <div>
+        <subscriber v-if="callerStream" @error="errorHandler" :stream="callerStream" :session="callerSession"></subscriber>
+        <publisher v-if="callerSession" :session="callerSession" @error="errorHandler"></publisher>
       </div>
     </div>
   </div>
@@ -38,11 +38,34 @@ import Publisher from './Publisher'
 import Subscriber from './Subscriber'
 
 function errorHandler(err) {
+  console.log('Error', err)
   if (err && err.message) {
     UIkit.notification(err.message, 'danger')
   } else if (typeof err == 'string') {
     UIkit.notification(err, 'danger')
   }
+}
+
+function setupSession(callerId) {
+  this.callerSession.on('streamCreated', (event) => {
+    this.callerStream = event.stream
+  })
+  this.callerSession.on('connectionCreated', (event) => {
+    this.connections[event.connection.id] = callerId
+  })
+  this.callerSession.on('connectionDestroyed', (event) => {
+    delete this.connections[event.connection.id]
+    if (this.currentCaller === callerId) {
+      this.callerSession.disconnect()
+      this.callerStream = null
+      this.callerSession = null
+      this.currentCaller = null
+    }
+    this.deleteCaller(callerId)
+  })
+  this.callerSession.on('streamDestroyed', (event) => {
+    this.callerStream = null
+  })
 }
 
 function successHandler(msg) {
@@ -53,9 +76,10 @@ function joinCall(callerId) {
   if (this.currentCaller !== null && this.currentCaller !== callerId) {
     this.holdCall(this.currentCaller)
   }
-  axios.get(`/call/${callerId}/agent/join`)
+  axios.get(`/call/${callerId}/join`)
     .then(res => {
       this.callerSession = OT.initSession(res.data.apiKey, res.data.sessionId)
+      this.setupSession(callerId)
       this.callerSession.connect(res.data.token, (err) => {
         if (err) {
           console.log(err)
@@ -73,11 +97,11 @@ function holdCall(callerId) {
     this.callerSession.disconnect()
   }
   console.log('Hold Call', callerId)
-  axios.get(`/call/${callerId}/agent/hold`)
+  this.currentCaller = null
+  this.callerSession = null
+  axios.get(`/call/${callerId}/hold`)
     .then(res => {
       this.updateCaller(res.data.caller)
-      this.currentCaller = null
-      this.callerSession = null
     })
 }
 
@@ -85,9 +109,10 @@ function unholdCall(callerId) {
   if (this.currentCaller !== null && this.currentCaller !== callerId) {
     this.holdCall(this.currentCaller)
   }
-  axios.get(`/call/${callerId}/agent/unhold`)
+  axios.get(`/call/${callerId}/unhold`)
     .then(res => {
       this.callerSession = OT.initSession(res.data.apiKey, res.data.sessionId)
+      this.setupSession(callerId)
       this.callerSession.connect(res.data.token, (err) => {
         if (err) {
           console.log(err)
@@ -111,7 +136,11 @@ function updateCaller(caller) {
 function deleteCaller(callerId) {
   for (const c in this.callers) {
     if (this.callers[c].callerId === callerId) {
-      this.callers.splice(c, 1)
+      axios.get(`/call/${callerId}/delete`)
+        .then(res => {
+          this.callers.splice(c, 1)
+        })
+        .catch(errorHandler)
     }
   }
 }
@@ -122,8 +151,10 @@ export default {
 
   data: () => ({
     callers: [],
+    connections: new Map(),
     currentCaller: null,
     callerSession: null,
+    callerStream: null,
     notificationSession: null
   }),
 
@@ -141,6 +172,7 @@ export default {
     unholdCall,
     updateCaller,
     deleteCaller,
+    setupSession,
     errorHandler,
     successHandler
   }

@@ -14,7 +14,8 @@
 
     <div v-if="session" class="uk-section">
       <div class="uk-container">
-        <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session"></subscriber>
+        <subscriber v-if="agentStream" @error="errorHandler"
+          :stream="agentStream" :session="session" :opts="subscriberOpts"></subscriber>
         <publisher :session="session" @error="errorHandler"></publisher>
       </div>
     </div>
@@ -57,6 +58,7 @@ function otConnect (apiKey, sessionId, token) {
   this.session.on('signal:hold', () => {
     this.onHold = true
     this.agentConnected = false
+    this.agentStream = null
   })
   this.session.on('signal:unhold', () => {
     this.onHold = false
@@ -83,11 +85,14 @@ export default {
     agentConnected: false,
     caller: null,
     session: null,
-    agentStream: null
+    agentStream: null,
+    subscriberOpts: {
+      insertMode: 'append'
+    }
   }),
 
   mounted() {
-    axios.get('/call/dial')
+    axios.get('/dial')
     .then(res => {
       this.caller = res.data.caller
       this.otConnect(res.data.apiKey, res.data.caller.sessionId, res.data.caller.token)

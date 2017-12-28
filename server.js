@@ -104,7 +104,7 @@ app.use(compression())
 // Mount the `./public` dir to web-root as static.
 app.use('/', express.static('./public'))
 
-app.get('/call/dial', (req, res, next) => {
+app.get('/dial', (req, res, next) => {
   const c = new Caller()
   createSession()
     .then(session => {
@@ -123,7 +123,7 @@ app.get('/call/dial', (req, res, next) => {
     .catch(next)
 })
 
-app.get('/call/:id/agent/join', (req, res, next) => {
+app.get('/call/:id/join', (req, res, next) => {
   const c = callers.get(req.params.id)
   if (!c) {
     const e = new Error(`Caller ID ${req.params.id} not found`)
@@ -143,7 +143,7 @@ app.get('/call/:id/agent/join', (req, res, next) => {
     .catch(next)
 })
 
-app.get('/call/:id/agent/hold', (req, res, next) => {
+app.get('/call/:id/hold', (req, res, next) => {
   const c = callers.get(req.params.id)
   if (!c) {
     const e = new Error(`Caller ID ${req.params.id} not found`)
@@ -156,7 +156,7 @@ app.get('/call/:id/agent/hold', (req, res, next) => {
   })
 })
 
-app.get('/call/:id/agent/unhold', (req, res, next) => {
+app.get('/call/:id/unhold', (req, res, next) => {
   const c = callers.get(req.params.id)
   if (!c) {
     const e = new Error(`Caller ID ${req.params.id} not found`)
@@ -174,6 +174,13 @@ app.get('/call/:id/agent/unhold', (req, res, next) => {
       })
     })
     .catch(next)
+})
+
+app.get('/call/:id/delete', (req, res, next) => {
+  callers.delete(req.params.id)
+  res.status(200).json({
+    deleted: req.params.id
+  })
 })
 
 app.get('/call/:id', (req, res, next) => {
