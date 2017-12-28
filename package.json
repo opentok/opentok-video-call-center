@@ -1,0 +1,63 @@
+{
+  "name": "opentok-call-center",
+  "version": "0.0.1",
+  "description": "OpenTok Call Center queueing demo",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "npm run app-build && npm run start-server",
+    "dev": "npm run app-dev && npm run start-server",
+    "start-server": "node server",
+    "test": "eslint .",
+    "certs": "openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem",
+    "app-dev": "cross-env NODE_ENV=development webpack --progress --hide-modules",
+    "app-build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaustavdm/opentok-call-center.git"
+  },
+  "keywords": [
+    "opentok",
+    "demo"
+  ],
+  "author": "Kaustav Das Modak <kaustav.dasmodak@yahoo.co.in>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kaustavdm/opentok-call-center/issues"
+  },
+  "homepage": "https://github.com/kaustavdm/opentok-call-center#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-stage-3": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.14.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "file-loader": "^1.1.4",
+    "vue-loader": "^13.0.5",
+    "vue-template-compiler": "^2.4.4",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
+  },
+  "dependencies": {
+    "@opentok/client": "^2.12.2",
+    "axios": "^0.17.1",
+    "compression": "^1.7.1",
+    "express": "^4.16.2",
+    "opentok": "^2.6.1",
+    "vue": "^2.5.11",
+    "vue-router": "^3.0.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}

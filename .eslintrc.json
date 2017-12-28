@@ -1,0 +1,6 @@
+{
+  "extends": "standard",
+  "env": {
+    "es6": true
+  }
+}
