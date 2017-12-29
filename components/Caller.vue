@@ -1,22 +1,25 @@
 <template>
   <div class="route-caller">
-    <div class="uk-container uk-text-center">
+    <div class="uk-text-center uk-container uk-container-expand">
       <div v-if="!agentConnected && !onHold" class="uk-alert">
         <p>Waiting in queue for agent</p>
       </div>
-      <div v-if="onHold" class="uk-alert uk-alert-primary">
+      <div v-else-if="onHold" class="uk-alert uk-alert-primary">
         <p>You have been put on hold</p>
       </div>
-      <div v-if="agentConnected && !onHold" class="uk-alert uk-alert-success">
+      <div v-else-if="agentConnected && !onHold" class="uk-alert uk-alert-success">
         <p>You are connected to agent</p>
       </div>
     </div>
 
-    <div v-if="session" class="uk-section">
+    <div v-if="session" class="route-agent">
       <div class="uk-container">
-        <subscriber v-if="agentStream" @error="errorHandler"
-          :stream="agentStream" :session="session" :opts="subscriberOpts"></subscriber>
-        <publisher :session="session" @error="errorHandler"></publisher>
+        <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
+          class="uk-width-1-1 uk-background-primary" uk-height-viewport="offset-top: true">
+        </subscriber>
+        <publisher v-if="session" :session="session" @error="errorHandler"
+          class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right uk-overlay uk-overlay-default">
+        </publisher>
       </div>
     </div>
   </div>
@@ -30,14 +33,14 @@ import Subscriber from './Subscriber'
 
 function errorHandler(err) {
   if (err && err.message) {
-    UIkit.notification(err.message, 'danger')
+    UIkit.notification(err.message, { pos: 'bottom-left', status: 'danger' })
   } else if (typeof err == 'string') {
-    UIkit.notification(err, 'danger')
+    UIkit.notification(err, { pos: 'bottom-left', status: 'warning' })
   }
 }
 
 function successHandler(msg) {
-  UIkit.notification(msg, 'success')
+  UIkit.notification(msg, { pos: 'bottom-left', status: 'success', timeout: 2500 } )
 }
 
 function otConnect (apiKey, sessionId, token) {
@@ -58,7 +61,7 @@ function otConnect (apiKey, sessionId, token) {
   this.session.on('signal:hold', () => {
     this.onHold = true
     this.agentConnected = false
-    this.agentStream = null
+    // this.agentStream = null
   })
   this.session.on('signal:unhold', () => {
     this.onHold = false
@@ -87,7 +90,9 @@ export default {
     session: null,
     agentStream: null,
     subscriberOpts: {
-      insertMode: 'append'
+      insertMode: 'append',
+      width: '100%',
+      height: '100%'
     }
   }),
 
