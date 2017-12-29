@@ -1,32 +1,39 @@
 <template>
-  <div class="route-agent" uk-grid>
-    <div>
-      <div v-for="caller in callers" :key="caller.callerId" class="uk-card uk-card-body">
-        <h3>Caller #{{ caller.callerId }}
-          <span v-if="caller.agentConnected" class="uk-label uk-label-success">Live</span>
-          <span v-if="caller.onHold" class="uk-label uk-label-warning">On Hold</span>
-        </h3>
-        <div>
+  <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
+    <div class="uk-width-1-3@m uk-padding">
+      <h2>Caller List</h2>
+      <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
+
+      <div v-for="caller in callers" :key="caller.callerId"
+        class="uk-card uk-card-default uk-card-hover uk-card-small uk-margin-small-bottom">
+        <div class="uk-card-header">
+          <h3 class="uk-card-title">Caller #{{ caller.callerId }}</h3>
+        </div>
+        <div class="uk-card-body">
+          <span v-if="caller.agentConnected" class="uk-card-badge uk-label uk-label-success">Live</span>
+          <span v-if="caller.onHold" class="uk-card-badge uk-label uk-label-warning">On Hold</span>
           <button
             @click="joinCall(caller.callerId)"
             v-if="!caller.agentConnected && !caller.onHold"
-            class="uk-button">Join</button>
+            class="uk-button uk-button-primary">Join</button>
           <button
             @click="unholdCall(caller.callerId)"
-            v-if="caller.onHold"
+            v-else-if="caller.onHold"
             class="uk-button uk-button-primary">Unhold</button>
           <button
             @click="holdCall(caller.callerId)"
-            v-if="caller.agentConnected && !caller.onHold"
-            class="uk-button uk-button-secondary">Hold</button>
+            v-else-if="caller.agentConnected && !caller.onHold"
+            class="uk-button uk-button-primary">Hold</button>
         </div>
       </div>
     </div>
-    <div>
-      <div>
-        <subscriber v-if="callerStream" @error="errorHandler" :stream="callerStream" :session="callerSession"></subscriber>
-        <publisher v-if="callerSession" :session="callerSession" @error="errorHandler"></publisher>
-      </div>
+    <div class="uk-width-expand uk-background-secondary">
+      <subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream"
+        :session="callerSession" uk-cover class="uk-width-expand"></subscriber>
+      <publisher v-if="callerSession" :session="callerSession" @error="errorHandler"
+        class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right
+          uk-overlay uk-overlay-default">
+      </publisher>
     </div>
   </div>
 </template>
@@ -62,8 +69,10 @@ function setupSession(callerId) {
       this.currentCaller = null
     }
     this.deleteCaller(callerId)
+    console.log('Connection destroyed', callerId)
   })
   this.callerSession.on('streamDestroyed', (event) => {
+    console.log('Stream destroyed', callerId)
     this.callerStream = null
   })
 }
@@ -99,6 +108,7 @@ function holdCall(callerId) {
   console.log('Hold Call', callerId)
   this.currentCaller = null
   this.callerSession = null
+  this.callerStream = null
   axios.get(`/call/${callerId}/hold`)
     .then(res => {
       this.updateCaller(res.data.caller)
@@ -155,7 +165,9 @@ export default {
     currentCaller: null,
     callerSession: null,
     callerStream: null,
-    notificationSession: null
+    notificationSession: null,
+    otOpts: {
+    }
   }),
 
   mounted() {
