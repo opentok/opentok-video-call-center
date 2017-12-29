@@ -1,26 +1,42 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div class="uk-width-auto uk-padding uk-background-muted">
-      <h2>Caller #{{ caller.callerId }}</h2>
 
-      <div v-if="!agentConnected && !onHold" class="uk-alert">
-        <p>Waiting in queue for agent</p>
-      </div>
-      <div v-if="onHold" class="uk-alert uk-alert-primary">
-        <p>You have been put on hold</p>
-      </div>
-      <div v-if="agentConnected && !onHold" class="uk-alert uk-alert-success">
-        <p>You are connected to agent</p>
-      </div>
-
-      <div class="uk-card uk-card-body uk-card-small uk-card-default">
-        <publisher v-if="session" :session="session" @error="errorHandler"
-          class="uk-width-small uk-height-small">
-        </publisher>
+      <div class="uk-card uk-card-small uk-card-default">
+        <div class="uk-card-header">
+          <div uk-grid class="uk-flex-between">
+            <div>
+              <h2 class="uk-card-title">Caller #{{ caller.callerId }}</h2>
+            </div>
+            <div>
+              <div v-if="!agentConnected && !onHold" class="uk-label uk-label-default">
+                In queue
+              </div>
+              <div v-if="onHold" class="uk-label uk-label-warning">
+                On hold
+              </div>
+              <div v-if="agentConnected && !onHold" class="uk-label uk-label-success">
+                Live
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body">
+          <publisher v-if="session" :session="session" @error="errorHandler"
+            class="uk-width-small uk-height-small">
+          </publisher>
+        </div>
       </div>
     </div>
 
-    <div class="uk-width-expand">
+    <div class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
+      <p v-if="onHold" class="uk-position-center uk-width-1-1 uk-text-center uk-text-lead uk-light">
+        Agent has put you on hold&hellip;
+      </p>
+      <p v-if="!agentConnected && !onHold" class="uk-position-center uk-width-1-1 uk-text-center uk-text-lead">
+        Waiting for agent to join&hellip;
+      </p>
+
       <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
         class="uk-background-primary uk-width-1-1 uk-height-1-1">
       </subscriber>
