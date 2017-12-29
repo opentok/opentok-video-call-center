@@ -15,7 +15,7 @@
     <div v-if="session" class="route-agent">
       <div class="uk-container">
         <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
-          class="uk-width-1-1 uk-background-primary" uk-height-viewport="offset-top: true">
+          class="uk-background-primary" uk-height-viewport="offset-top: true">
         </subscriber>
         <publisher v-if="session" :session="session" @error="errorHandler"
           class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right uk-overlay uk-overlay-default">

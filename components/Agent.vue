@@ -28,11 +28,10 @@
       </div>
     </div>
     <div class="uk-width-expand uk-background-secondary">
-      <subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream"
-        :session="callerSession" uk-cover class="uk-width-expand"></subscriber>
+      <subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream" :opts="otOpts"
+        :session="callerSession" class="uk-width-1-1 uk-height-1-1"></subscriber>
       <publisher v-if="callerSession" :session="callerSession" @error="errorHandler"
-        class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right
-          uk-overlay uk-overlay-default">
+        class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right">
       </publisher>
     </div>
   </div>
@@ -167,6 +166,9 @@ export default {
     callerStream: null,
     notificationSession: null,
     otOpts: {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%'
     }
   }),
 
