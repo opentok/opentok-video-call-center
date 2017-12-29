@@ -1,7 +1,7 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div class="uk-width-1-3@m uk-padding">
-      <h2>Caller List</h2>
+      <h2>Agent</h2>
       <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
 
       <div v-for="caller in callers" :key="caller.callerId"
@@ -27,7 +27,7 @@
         </div>
       </div>
     </div>
-    <div class="uk-width-expand uk-background-secondary">
+    <div class="uk-width-expand uk-background-muted">
       <subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream" :opts="otOpts"
         :session="callerSession" class="uk-width-1-1 uk-height-1-1"></subscriber>
       <publisher v-if="callerSession" :session="callerSession" @error="errorHandler"

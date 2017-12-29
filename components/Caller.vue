@@ -1,26 +1,29 @@
 <template>
-  <div class="route-caller">
-    <div class="uk-text-center uk-container uk-container-expand">
+  <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
+    <div class="uk-width-auto uk-padding uk-background-muted">
+      <h2>Caller #{{ caller.callerId }}</h2>
+
       <div v-if="!agentConnected && !onHold" class="uk-alert">
         <p>Waiting in queue for agent</p>
       </div>
-      <div v-else-if="onHold" class="uk-alert uk-alert-primary">
+      <div v-if="onHold" class="uk-alert uk-alert-primary">
         <p>You have been put on hold</p>
       </div>
-      <div v-else-if="agentConnected && !onHold" class="uk-alert uk-alert-success">
+      <div v-if="agentConnected && !onHold" class="uk-alert uk-alert-success">
         <p>You are connected to agent</p>
+      </div>
+
+      <div class="uk-card uk-card-body uk-card-small uk-card-default">
+        <publisher v-if="session" :session="session" @error="errorHandler"
+          class="uk-width-small uk-height-small">
+        </publisher>
       </div>
     </div>
 
-    <div v-if="session" class="route-agent">
-      <div class="uk-container">
-        <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
-          class="uk-background-primary" uk-height-viewport="offset-top: true">
-        </subscriber>
-        <publisher v-if="session" :session="session" @error="errorHandler"
-          class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right uk-overlay uk-overlay-default">
-        </publisher>
-      </div>
+    <div class="uk-width-expand">
+      <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
+        class="uk-background-primary uk-width-1-1 uk-height-1-1">
+      </subscriber>
     </div>
   </div>
 </template>
