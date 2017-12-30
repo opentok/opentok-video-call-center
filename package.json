@@ -5,13 +5,14 @@
   "main": "server.js",
   "private": true,
   "scripts": {
-    "start": "npm run app-build && npm run start-server",
+    "start": "npm run start-server",
     "dev": "npm run app-dev && npm run start-server",
     "start-server": "node server",
     "test": "eslint .",
     "certs": "openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem",
     "app-dev": "cross-env NODE_ENV=development webpack --hide-modules",
-    "app-build": "cross-env NODE_ENV=production webpack --hide-modules"
+    "app-build": "cross-env NODE_ENV=production webpack --hide-modules",
+    "heroku-postbuild": "npm run app-build"
   },
   "repository": {
     "type": "git",

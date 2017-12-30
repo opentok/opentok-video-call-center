@@ -32,6 +32,12 @@ $ export OPENTOK_API_SECRET="opentok-api-secret-here"
 
 **Register session monitoring callback** in your [TokBox account](https://tokbox.com/account) for the path `/ot_callback`. For example, if this application is hosted at `https://example.com`, register this URL: `https://example.com/ot_callback`.
 
+Build assets for the app, run:
+
+```sh
+$ npm run app-build
+```
+
 ### Start the server
 
 ```sh
@@ -48,4 +54,12 @@ To start secure server, set the `SECURE` environment variable to some value. For
 
 ```sh
 $ SECURE=1 PORT=3000 npm start
+```
+
+### Development use
+
+For development use, you can compile assets in development mode and launch server by running:
+
+```sh
+$ npm run dev
 ```
