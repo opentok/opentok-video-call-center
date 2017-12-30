@@ -2,7 +2,7 @@
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div class="uk-width-auto uk-padding uk-background-muted">
 
-      <div class="uk-card uk-card-small uk-card-default">
+      <div v-if="caller" class="uk-card uk-card-small uk-card-default">
         <div class="uk-card-header">
           <div uk-grid class="uk-flex-between">
             <div>
