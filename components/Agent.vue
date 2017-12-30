@@ -173,7 +173,7 @@ export default {
   }),
 
   mounted() {
-    axios('/calls')
+    axios('/agent/data')
       .then(res => {
         this.callers = res.data.callers
       })

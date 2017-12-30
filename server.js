@@ -1,6 +1,7 @@
 const express = require('express')
 const OpenTok = require('opentok')
 const compression = require('compression')
+const bodyParser = require('body-parser')
 
 // Get configurations
 const PORT = process.env.PORT || 8080
@@ -44,8 +45,11 @@ function createToken (sessionId, userId, userType = 'caller') {
 }
 
 let callers = new Map()
-
 let callerCount = 0
+
+let signalingSession = null
+
+createSession().then(session => (signalingSession = session.sessionId))
 
 function Caller (sessionId, token) {
   this.sessionId = sessionId
@@ -55,6 +59,7 @@ function Caller (sessionId, token) {
   this.agentConnected = false
   this.connectedSince = new Date()
   this.onCallSince = null
+  this.ready = false
 }
 
 Caller.prototype.status = function () {
@@ -97,9 +102,37 @@ Caller.prototype.unhold = function () {
   })
 }
 
+async function handleConnectionCreated (data) {
+  let conndata = JSON.parse(data.connection.data)
+  if (!conndata.userId && !conndata.userType) {
+    return
+  }
+  if (conndata.userType === 'caller') {
+    let c = callers.get(conndata.userId)
+    if (!c) {
+      return
+    }
+    c.ready = true
+    console.log('Caller connected', conndata.userId)
+  }
+}
+
+async function handleConnectionDestroyed (data) {
+  let conndata = JSON.parse(data.connection.data)
+  if (!conndata.userId && !conndata.userType) {
+    return
+  }
+  if (conndata.userType === 'caller') {
+    callers.delete(conndata.userId)
+    console.log('Caller disconnected', conndata.userId)
+  }
+}
+
 // Create expressJS app instance
 const app = express()
 app.use(compression())
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // Mount the `./public` dir to web-root as static.
 app.use('/', express.static('./public'))
@@ -195,15 +228,39 @@ app.get('/call/:id', (req, res, next) => {
   })
 })
 
-app.get('/calls', (req, res, next) => {
-  res.status(200).json({
-    callers: Array.from(callers.values()).map(c => c.status())
-  })
+app.get('/agent/data', (req, res, next) => {
+  createToken(signalingSession, 'notification', 'agent')
+    .then(token => {
+      res.status(200).json({
+        callers: Array.from(callers.values()).filter(c => c.ready).map(c => c.status()),
+        signaling: {
+          session: signalingSession,
+          token: token,
+          apiKey: OPENTOK_API_KEY
+        }
+      })
+    })
+    .catch(next)
+})
+
+app.post('/ot_callback', (req, res) => {
+  switch (req.body.event) {
+    case 'connectionCreated':
+      handleConnectionCreated(req.body)
+      break
+    case 'connectionDestroyed':
+      handleConnectionDestroyed(req.body)
+      break
+  }
+  res.status(200).send()
 })
 
 // error handler
 app.use(function (err, req, res, next) {
   err.status = err.status || 500
+  if (err.status === 500) {
+    console.log('Error', err)
+  }
   res.status(err.status).json({
     message: err.message || 'Unable to perform request',
     status: err.status
