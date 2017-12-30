@@ -154,6 +154,17 @@ function deleteCaller(callerId) {
   }
 }
 
+function fetchAgentData() {
+  axios('/agent/data')
+    .then(res => {
+      this.callers = res.data.callers
+    })
+    .catch(e => {
+      errorHandler('Unable to fetch agent data')
+      console.log('Unable to fetch agent data', e)
+    })
+}
+
 export default {
   name: 'agent',
   components: { Publisher, Subscriber },
@@ -164,7 +175,6 @@ export default {
     currentCaller: null,
     callerSession: null,
     callerStream: null,
-    notificationSession: null,
     otOpts: {
       insertMode: 'append',
       width: '100%',
@@ -173,11 +183,8 @@ export default {
   }),
 
   mounted() {
-    axios('/agent/data')
-      .then(res => {
-        this.callers = res.data.callers
-      })
-      .catch(console.log)
+    this.fetchAgentData()
+    setInterval(this.fetchAgentData, 2500)
   },
 
   methods: {
@@ -188,7 +195,8 @@ export default {
     deleteCaller,
     setupSession,
     errorHandler,
-    successHandler
+    successHandler,
+    fetchAgentData
   }
 }
 

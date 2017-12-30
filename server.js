@@ -47,10 +47,6 @@ function createToken (sessionId, userId, userType = 'caller') {
 let callers = new Map()
 let callerCount = 0
 
-let signalingSession = null
-
-createSession().then(session => (signalingSession = session.sessionId))
-
 function Caller (sessionId, token) {
   this.sessionId = sessionId
   this.token = token
@@ -229,18 +225,9 @@ app.get('/call/:id', (req, res, next) => {
 })
 
 app.get('/agent/data', (req, res, next) => {
-  createToken(signalingSession, 'notification', 'agent')
-    .then(token => {
-      res.status(200).json({
-        callers: Array.from(callers.values()).filter(c => c.ready).map(c => c.status()),
-        signaling: {
-          session: signalingSession,
-          token: token,
-          apiKey: OPENTOK_API_KEY
-        }
-      })
-    })
-    .catch(next)
+  res.status(200).json({
+    callers: Array.from(callers.values()).filter(c => c.ready).map(c => c.status())
+  })
 })
 
 app.post('/ot_callback', (req, res) => {
