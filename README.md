@@ -4,6 +4,15 @@ This demo showcases a simulation of call center where callers queue up to talk t
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kaustavdm/opentok-call-center-demo)
 
+## OpenTok features used
+
+These are the OpenTok features used in this demo:
+
+- Server-side SDK (NodeJS): Used to created dynamic session and token creation per call
+- Publish and subscribe streams: For connecting agent with caller
+- Signaling - To signal for agent join, call hold and call resume.
+- Session monitoring - To keep active caller list updated
+
 ## Install
 
 Install NodeJS v8.0+
@@ -20,7 +29,10 @@ Get OpenTok API keys and set them as environment variables:
 $ export OPENTOK_API_KEY="opentok-api-key-here"
 $ export OPENTOK_API_SECRET="opentok-api-secret-here"
 ```
-Start the server:
+
+**Register session monitoring callback** in your [TokBox account](https://tokbox.com/account) for the path `/ot_callback`. For example, if this application is hosted at `https://example.com`, register this URL: `https://example.com/ot_callback`.
+
+### Start the server
 
 ```sh
 $ npm start
