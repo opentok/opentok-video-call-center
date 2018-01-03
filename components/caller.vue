@@ -107,7 +107,7 @@ function successHandler(msg) {
 }
 
 function endCallHandler () {
-  this.$router.push('/')
+  this.$router.push('/end')
 }
 
 function otConnect (apiKey, sessionId, token) {
@@ -133,6 +133,9 @@ function otConnect (apiKey, sessionId, token) {
   this.session.on('signal:unhold', () => {
     this.onHold = false
     this.agentConnected = true
+  })
+  this.session.on('signal:endCall', () => {
+    this.endCallHandler()
   })
   this.session.on('streamCreated', (event) => {
     console.log('Stream created', event.stream)

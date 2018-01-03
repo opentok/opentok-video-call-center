@@ -215,9 +215,15 @@ app.get('/call/:id/unhold', (req, res, next) => {
 })
 
 app.get('/call/:id/delete', (req, res, next) => {
-  callers.delete(req.params.id)
-  res.status(200).json({
-    deleted: req.params.id
+  const c = callers.get(req.params.id)
+  OT.signal(c.sessionId, null, { type: 'endCall', data: 'end' }, function (err) {
+    if (err) {
+      console.log(err)
+    }
+    callers.delete(req.params.id)
+    res.status(200).json({
+      deleted: req.params.id
+    })
   })
 })
 

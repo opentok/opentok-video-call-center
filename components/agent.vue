@@ -29,6 +29,10 @@
             @click="holdCall(caller.callerId)"
             v-else-if="caller.agentConnected && !caller.onHold"
             class="uk-button uk-button-primary">Hold</button>
+          <button
+            @click="endCall(caller.callerId)"
+            v-if="caller.agentConnected && !caller.onHold"
+            class="uk-button uk-button-danger">End Call</button>
         </div>
       </div>
     </div>
@@ -157,6 +161,13 @@ function updateCaller(caller) {
   }
 }
 
+function endCall(callerId) {
+  if (this.callerSession && this.callerSession.isConnected()) {
+    this.callerSession.disconnect()
+  }
+  this.deleteCaller(callerId)
+}
+
 function deleteCaller(callerId) {
   for (const c in this.callers) {
     if (this.callers[c].callerId === callerId) {
@@ -229,7 +240,8 @@ export default {
     setupSession,
     errorHandler,
     successHandler,
-    fetchAgentData
+    fetchAgentData,
+    endCall
   }
 }
 

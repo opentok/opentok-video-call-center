@@ -5,6 +5,7 @@ import VueRouter from 'vue-router'
 import Home from './components/home'
 import Agent from './components/agent'
 import Caller from './components/caller'
+import EndCall from './components/end-call'
 
 Vue.use(VueRouter)
 
@@ -12,7 +13,8 @@ const router = new VueRouter({
   routes: [
     { path: '/', component: Home },
     { path: '/agent', component: Agent },
-    { path: '/caller', component: Caller }
+    { path: '/caller', component: Caller },
+    { path: '/end', component: EndCall }
   ]
 })
 
