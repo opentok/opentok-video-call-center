@@ -6,7 +6,7 @@
 import OT from '@opentok/client'
 
 export default {
-  name: 'publisher',
+  name: 'ot-publisher',
 
   props: {
     session: {

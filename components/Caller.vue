@@ -2,31 +2,9 @@
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div class="uk-width-auto uk-padding uk-background-muted">
 
-      <div v-if="caller" class="uk-card uk-card-small uk-card-default">
-        <div class="uk-card-header">
-          <div uk-grid class="uk-flex-between">
-            <div>
-              <h2 class="uk-card-title">Caller #{{ caller.callerId }}</h2>
-            </div>
-            <div>
-              <div v-if="!agentConnected && !onHold" class="uk-label uk-label-default">
-                In queue
-              </div>
-              <div v-if="onHold" class="uk-label uk-label-warning">
-                On hold
-              </div>
-              <div v-if="agentConnected && !onHold" class="uk-label uk-label-success">
-                Live
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="uk-card-body">
-          <publisher v-if="session" :session="session" @error="errorHandler"
-            class="uk-width-small uk-height-small">
-          </publisher>
-        </div>
-      </div>
+      <self-view v-if="caller" :session="session" :agentConnected="agentConnected"
+        :onHold="onHold" :caller="caller" @error="errorHandler">
+      </self-view>
     </div>
 
     <div class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
@@ -47,8 +25,8 @@
 <script>
 import OT from '@opentok/client'
 import axios from 'axios'
-import Publisher from './Publisher'
 import Subscriber from './Subscriber'
+import SelfView from './self-view'
 
 function errorHandler(err) {
   if (err && err.message) {
@@ -100,7 +78,7 @@ function otConnect (apiKey, sessionId, token) {
 export default {
   name: 'caller',
 
-  components: { Publisher, Subscriber },
+  components: { Subscriber, SelfView },
 
   data: () => ({
     onHold: false,
