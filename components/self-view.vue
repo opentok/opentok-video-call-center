@@ -32,7 +32,8 @@
         :class="[ isMuted ? 'uk-button-primary' : 'uk-button-secondary' ]">
         {{ isMuted ? 'Unmute' : 'Mute'}}
       </button>
-      <button class="uk-button uk-width-1-1 uk-margin-small-bottom uk-button-danger">
+      <button @click="endCall"
+        class="uk-button uk-width-1-1 uk-margin-small-bottom uk-button-danger">
         End call
       </button>
     </div>
@@ -45,7 +46,7 @@ import OTPublisher from './ot-publisher'
 
 export default {
   name: 'self-view',
-  components: { OTPublisher },
+  components: { 'ot-publisher': OTPublisher },
   data () {
     return {
       otPublisher: null,
@@ -55,6 +56,11 @@ export default {
         showControls: false
       },
       isMuted: false
+    }
+  },
+  beforeDestroy () {
+    if (this.otPublisher && this.session) {
+      this.session.unpublish(this.otPublisher)
     }
   },
   props: {
@@ -80,8 +86,12 @@ export default {
     toggleMute: function () {
       if (this.otPublisher) {
         this.otPublisher.publishAudio(this.isMuted)
+        this.$emit('publisherMuted', !this.isMuted)
         this.isMuted = !this.isMuted
       }
+    },
+    endCall: function () {
+      this.$emit('endCall')
     }
   }
 }

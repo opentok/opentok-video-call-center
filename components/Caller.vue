@@ -3,7 +3,7 @@
     <div class="uk-width-auto uk-padding uk-background-muted">
 
       <self-view v-if="caller" :session="session" :agentConnected="agentConnected"
-        :onHold="onHold" :caller="caller" @error="errorHandler">
+        :onHold="onHold" :caller="caller" @error="errorHandler" @endCall="endCallHandler">
       </self-view>
     </div>
 
@@ -38,6 +38,10 @@ function errorHandler(err) {
 
 function successHandler(msg) {
   UIkit.notification(msg, { pos: 'bottom-left', status: 'success', timeout: 2500 } )
+}
+
+function endCallHandler () {
+  this.$router.push('/')
 }
 
 function otConnect (apiKey, sessionId, token) {
@@ -102,10 +106,18 @@ export default {
     .catch(console.log)
   },
 
+  beforeDestroy () {
+    if (this.session && this.session.isConnected()) {
+      console.log('Disconnecting from session', this.session.sessionId)
+      this.session.disconnect()
+    }
+  },
+
   methods: {
     errorHandler,
     successHandler,
-    otConnect
+    otConnect,
+    endCallHandler
   }
 
 }
