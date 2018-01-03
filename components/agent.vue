@@ -1,6 +1,6 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
-    <div class="uk-width-1-3@m uk-height-viewport uk-panel-scrollable">
+    <div class="uk-width-1-3 uk-width-1-4@l uk-height-viewport uk-panel-scrollable" id="agent-info-screen">
       <h1 class="uk-h3 uk-padding-small">Agent</h1>
       <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
 
@@ -42,6 +42,13 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+  #agent-info-screen {
+    overflow-x: hidden;
+  }
+</style>
+
 
 <script>
 import OT from '@opentok/client'
