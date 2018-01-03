@@ -50,12 +50,20 @@ export default {
   data () {
     return {
       otPublisher: null,
-      publisherOpts: {
+      isMuted: false
+    }
+  },
+  computed: {
+    publisherOpts: function () {
+      const _opts = {
         // Don't show OpenTok's default UI controls
         // See: https://tokbox.com/developer/guides/customize-ui/js/#hiding_ui_controls
         showControls: false
-      },
-      isMuted: false
+      }
+      if (this.audioVideo === 'audioOnly') {
+        _opts.videoSource = null
+      }
+      return _opts
     }
   },
   beforeDestroy () {
@@ -74,6 +82,10 @@ export default {
     onHold: {
       type: Boolean,
       default: false
+    },
+    audioVideo: {
+      type: String,
+      default: 'audioVideo'
     }
   },
   methods: {

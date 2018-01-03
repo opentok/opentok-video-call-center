@@ -36,7 +36,7 @@
       <ot-subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream" :opts="otOpts"
         :session="callerSession" class="uk-width-1-1 uk-height-1-1">
       </ot-subscriber>
-      <ot-publisher v-if="callerSession" :session="callerSession" @error="errorHandler"
+      <ot-publisher v-if="callerSession" :session="callerSession" @error="errorHandler" :opts="publisherOpts"
         class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right">
       </ot-publisher>
     </div>
@@ -99,6 +99,7 @@ function joinCall(callerId) {
   }
   axios.get(`/call/${callerId}/join`)
     .then(res => {
+      this.audioVideo = res.data.caller.audioVideo
       this.callerSession = OT.initSession(res.data.apiKey, res.data.sessionId)
       this.setupSession(callerId)
       this.callerSession.connect(res.data.token, (err) => {
@@ -133,6 +134,7 @@ function unholdCall(callerId) {
   }
   axios.get(`/call/${callerId}/unhold`)
     .then(res => {
+      this.audioVideo = res.data.caller.audioVideo
       this.callerSession = OT.initSession(res.data.apiKey, res.data.sessionId)
       this.setupSession(callerId)
       this.callerSession.connect(res.data.token, (err) => {
@@ -188,12 +190,30 @@ export default {
     currentCaller: null,
     callerSession: null,
     callerStream: null,
+    audioVideo: 'audioVideo',
     otOpts: {
       insertMode: 'append',
       width: '100%',
-      height: '100%'
+      height: '100%',
+      // Don't show OpenTok's default UI controls
+      // See: https://tokbox.com/developer/guides/customize-ui/js/#hiding_ui_controls
+      showControls: false
     }
   }),
+
+  computed: {
+    publisherOpts: function () {
+      const _opts = {
+        // Don't show OpenTok's default UI controls
+        // See: https://tokbox.com/developer/guides/customize-ui/js/#hiding_ui_controls
+        showControls: false
+      }
+      if (this.audioVideo === 'audioOnly') {
+        _opts.videoSource = null
+      }
+      return _opts
+    }
+  },
 
   mounted() {
     this.fetchAgentData()

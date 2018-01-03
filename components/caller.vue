@@ -2,7 +2,7 @@
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div v-if="caller" class="uk-width-auto uk-padding uk-background-muted">
 
-      <self-view :session="session" :agentConnected="agentConnected"
+      <self-view :session="session" :agentConnected="agentConnected" :audioVideo="audioVideo"
         :onHold="onHold" :caller="caller" @error="errorHandler" @endCall="endCallHandler">
       </self-view>
 
@@ -89,7 +89,7 @@ function otConnect (apiKey, sessionId, token) {
       return
     }
     successHandler('Connected to OpenTok')
-    console.log('Connected to session')
+    console.log('Connected to session', sessionId)
   })
   this.session.on('signal:agentConnected', (data) => {
     console.log('Agentconnected', data)
@@ -117,8 +117,6 @@ function otConnect (apiKey, sessionId, token) {
 }
 
 function onSubmit(e) {
-  console.log(e)
-  console.log(this.callerName, this.callerReason, this.audioVideo)
   axios.post('/dial', { callerName: this.callerName, callerReason: this.callerReason, audioVideo: this.audioVideo })
   .then(res => {
     this.caller = res.data.caller
