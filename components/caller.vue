@@ -20,28 +20,57 @@
     </div>
 
     <div v-if="!caller" class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
-      <form class="uk-form-horizontal" v-on:submit.prevent="onSubmit">
-        <div class="uk-margin">
-          <label for="caller-name">Your name</label>
-          <input type="text" id="caller-name" v-model="callerName" autofocus ref='callerName'>
-        </div>
-        <div class="uk-margin">
-          <label for="caller-reason">Reason for call</label>
-          <input type="text" v-model="callerReason" id="caller-reason">
-        </div>
-        <div class="uk-margin">
-          <div class="uk-form-label">Join via</div>
-          <div class="uk-form-controls uk-form-controls-text">
-              <label><input class="uk-radio" type="radio" name="audioVideo" value="audioVideo"
-                v-model="audioVideo">Audio/Video</label><br>
-              <label><input class="uk-radio" type="radio" name="audioVideo" value="audioOnly"
-                v-model="audioVideo">Audio only</label>
+      <div class="uk-section uk-section-primary uk-preserve-color uk-height-viewport">
+        <div class="uk-container uk-container-small">
+          <div class="uk-card uk-card-default uk-width-3-4 uk-width-3-5@m uk-align-center">
+            <form v-on:submit.prevent="onSubmit">
+              <div class="uk-card-header">
+                <p class="uk-h3">Welcome to XYZ Corporation</p>
+                <p>Contact our audio/video call center</p>
+              </div>
+              <div class="uk-card-body">
+                <div class="uk-margin" uk-grid>
+                  <div class="uk-width-1-3 uk-text-right uk-text-bold">
+                    <label for="caller-name">Your name</label>
+                  </div>
+                  <div class="uk-width-auto">
+                    <input type="text" id="caller-name" v-model="callerName" autofocus ref='callerName'>
+                  </div>
+                </div>
+                <div class="uk-margin" uk-grid>
+                  <div class="uk-width-1-3 uk-text-right uk-text-bold">
+                    <label for="caller-reason">Reason for call</label>
+                  </div>
+                  <div class="uk-width-expand">
+                    <input type="text" v-model="callerReason" id="caller-reason">
+                  </div>
+                </div>
+                <div class="uk-margin" uk-grid>
+                  <div class="uk-width-1-3 uk-text-right uk-text-bold">
+                    <div class="uk-form-label">Join via</div>
+                  </div>
+                  <div class="uk-form-controls uk-form-controls-text uk-width-expand">
+                      <label><input class="uk-radio" type="radio" name="audioVideo" value="audioVideo"
+                        v-model="audioVideo">Audio/Video</label><br>
+                      <label><input class="uk-radio" type="radio" name="audioVideo" value="audioOnly"
+                        v-model="audioVideo">Audio only</label>
+                  </div>
+                </div>
+              </div>
+              <div class="uk-card-footer">
+                <div class="uk-margin" uk-grid>
+                  <div class="uk-width-1-3">
+                    <router-link to="/" class="uk-button uk-button-secondary">Exit</router-link>
+                  </div>
+                  <div class="uk-form-controls uk-form-controls-text uk-width-expand">
+                    <input type="submit" value="Place call" class="uk-button uk-button-primary uk-margin-remove-left">
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-        <div class="uk-margin">
-          <input type="submit" value="Place call" class="uk-button uk-button-primary">
-        </div>
-      </form>
+      </div>
     </div>
 
     <div v-if="caller" class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
