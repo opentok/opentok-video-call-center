@@ -56,6 +56,9 @@ function Caller (sessionId, token) {
   this.connectedSince = new Date()
   this.onCallSince = null
   this.ready = false
+  this.callerName = null
+  this.callerReason = null
+  this.audioVideo = null
 }
 
 Caller.prototype.status = function () {
@@ -64,7 +67,10 @@ Caller.prototype.status = function () {
     onHold: this.onHold,
     connectedSince: this.connectedSince,
     onCallSince: this.onCallSince,
-    agentConnected: this.agentConnected
+    agentConnected: this.agentConnected,
+    callerName: this.callerName,
+    callerReason: this.callerReason,
+    audioVideo: this.audioVideo
   }
 }
 
@@ -133,8 +139,11 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // Mount the `./public` dir to web-root as static.
 app.use('/', express.static('./public'))
 
-app.get('/dial', (req, res, next) => {
+app.post('/dial', (req, res, next) => {
   const c = new Caller()
+  c.callerName = req.body.callerName
+  c.callerReason = req.body.callerReason
+  c.audioVideo = req.body.audioVideo
   createSession()
     .then(session => {
       c.sessionId = session.sessionId

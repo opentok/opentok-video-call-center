@@ -5,21 +5,26 @@
       <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
 
       <div v-for="caller in callers" :key="caller.callerId"
-        class="uk-card uk-card-default uk-card-hover uk-card-small uk-margin-small-bottom">
+        class="uk-card uk-card-default uk-card-hover uk-card-small uk-margin-small-bottom"
+        :class="{ 'uk-card-primary': caller.agentConnected, 'uk-card-secondary': caller.onHold }">
         <div class="uk-card-header">
-          <h3 class="uk-card-title">Caller #{{ caller.callerId }}</h3>
+          <h3 class="uk-h4">Caller #{{ caller.callerId }}</h3>
         </div>
         <div class="uk-card-body">
+          <ul class="uk-list">
+            <li>Name: {{ caller.callerName || 'N/A' }}</li>
+            <li>Reason: {{ caller.callerReason || 'N/A' }}</li>
+          </ul>
           <span v-if="caller.agentConnected" class="uk-card-badge uk-label uk-label-success">Live</span>
           <span v-if="caller.onHold" class="uk-card-badge uk-label uk-label-warning">On Hold</span>
           <button
             @click="joinCall(caller.callerId)"
             v-if="!caller.agentConnected && !caller.onHold"
-            class="uk-button uk-button-primary">Join</button>
+            class="uk-button uk-button-primary">Accept</button>
           <button
             @click="unholdCall(caller.callerId)"
             v-else-if="caller.onHold"
-            class="uk-button uk-button-primary">Unhold</button>
+            class="uk-button uk-button-default">Resume</button>
           <button
             @click="holdCall(caller.callerId)"
             v-else-if="caller.agentConnected && !caller.onHold"

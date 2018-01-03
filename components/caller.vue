@@ -119,7 +119,7 @@ function otConnect (apiKey, sessionId, token) {
 function onSubmit(e) {
   console.log(e)
   console.log(this.callerName, this.callerReason, this.audioVideo)
-  axios.get('/dial')
+  axios.post('/dial', { callerName: this.callerName, callerReason: this.callerReason, audioVideo: this.audioVideo })
   .then(res => {
     this.caller = res.data.caller
     this.otConnect(res.data.apiKey, res.data.caller.sessionId, res.data.caller.token)
