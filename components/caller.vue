@@ -15,9 +15,9 @@
         Waiting for agent to join&hellip;
       </p>
 
-      <subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
+      <ot-subscriber v-if="agentStream" @error="errorHandler" :stream="agentStream" :session="session" :opts="subscriberOpts"
         class="uk-background-primary uk-width-1-1 uk-height-1-1">
-      </subscriber>
+      </ot-subscriber>
     </div>
   </div>
 </template>
@@ -25,7 +25,7 @@
 <script>
 import OT from '@opentok/client'
 import axios from 'axios'
-import Subscriber from './Subscriber'
+import OtSubscriber from './ot-subscriber'
 import SelfView from './self-view'
 
 function errorHandler(err) {
@@ -82,7 +82,7 @@ function otConnect (apiKey, sessionId, token) {
 export default {
   name: 'caller',
 
-  components: { Subscriber, SelfView },
+  components: { OtSubscriber, SelfView },
 
   data: () => ({
     onHold: false,

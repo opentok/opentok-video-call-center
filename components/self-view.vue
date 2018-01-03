@@ -42,11 +42,11 @@
 
 <script>
 
-import OTPublisher from './ot-publisher'
+import OtPublisher from './ot-publisher'
 
 export default {
   name: 'self-view',
-  components: { 'ot-publisher': OTPublisher },
+  components: { OtPublisher },
   data () {
     return {
       otPublisher: null,

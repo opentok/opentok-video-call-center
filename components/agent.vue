@@ -28,8 +28,9 @@
       </div>
     </div>
     <div class="uk-width-expand uk-background-muted">
-      <subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream" :opts="otOpts"
-        :session="callerSession" class="uk-width-1-1 uk-height-1-1"></subscriber>
+      <ot-subscriber v-if="callerSession && callerStream" @error="errorHandler" :stream="callerStream" :opts="otOpts"
+        :session="callerSession" class="uk-width-1-1 uk-height-1-1">
+      </ot-subscriber>
       <ot-publisher v-if="callerSession" :session="callerSession" @error="errorHandler"
         class="uk-width-small uk-height-small uk-position-medium uk-position-bottom-right">
       </ot-publisher>
@@ -40,8 +41,8 @@
 <script>
 import OT from '@opentok/client'
 import axios from 'axios'
-import OTPublisher from './ot-publisher'
-import Subscriber from './Subscriber'
+import OtPublisher from './ot-publisher'
+import OtSubscriber from './ot-subscriber'
 
 function errorHandler(err) {
   console.log('Error', err)
@@ -167,7 +168,7 @@ function fetchAgentData() {
 
 export default {
   name: 'agent',
-  components: { OTPublisher, Subscriber },
+  components: { OtPublisher, OtSubscriber },
 
   data: () => ({
     callers: [],

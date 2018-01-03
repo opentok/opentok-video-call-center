@@ -2,9 +2,9 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 // routes
-import Home from './components/Home'
-import Agent from './components/Agent'
-import Caller from './components/Caller'
+import Home from './components/home'
+import Agent from './components/agent'
+import Caller from './components/caller'
 
 Vue.use(VueRouter)
 
