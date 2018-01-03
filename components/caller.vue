@@ -1,13 +1,50 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
-    <div class="uk-width-auto uk-padding uk-background-muted">
+    <div v-if="caller" class="uk-width-auto uk-padding uk-background-muted">
 
-      <self-view v-if="caller" :session="session" :agentConnected="agentConnected"
+      <self-view :session="session" :agentConnected="agentConnected"
         :onHold="onHold" :caller="caller" @error="errorHandler" @endCall="endCallHandler">
       </self-view>
+
+      <div class="uk-card uk-card-default uk-card-small uk-margin-small-top">
+        <div class="uk-card-header">
+          <h2 class="uk-h4">Caller info</h2>
+        </div>
+        <div class="uk-card-body">
+          <ul class="uk-list">
+            <li>Name: {{ callerName || 'N/A' }}</li>
+            <li>Reason: {{ callerReason || 'N/A'}}</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
-    <div class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
+    <div v-if="!caller" class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
+      <form class="uk-form-horizontal" v-on:submit.prevent="onSubmit">
+        <div class="uk-margin">
+          <label for="caller-name">Your name</label>
+          <input type="text" id="caller-name" v-model="callerName" autofocus ref='callerName'>
+        </div>
+        <div class="uk-margin">
+          <label for="caller-reason">Reason for call</label>
+          <input type="text" v-model="callerReason" id="caller-reason">
+        </div>
+        <div class="uk-margin">
+          <div class="uk-form-label">Join via</div>
+          <div class="uk-form-controls uk-form-controls-text">
+              <label><input class="uk-radio" type="radio" name="audioVideo" value="audioVideo"
+                v-model="audioVideo">Audio/Video</label><br>
+              <label><input class="uk-radio" type="radio" name="audioVideo" value="audioOnly"
+                v-model="audioVideo">Audio only</label>
+          </div>
+        </div>
+        <div class="uk-margin">
+          <input type="submit" value="Place call" class="uk-button uk-button-primary">
+        </div>
+      </form>
+    </div>
+
+    <div v-if="caller" class="uk-width-expand uk-position-relative" :class="{ 'uk-background-secondary': onHold }">
       <p v-if="onHold" class="uk-position-center uk-width-1-1 uk-text-center uk-text-lead uk-light">
         Agent has put you on hold&hellip;
       </p>
@@ -79,6 +116,17 @@ function otConnect (apiKey, sessionId, token) {
   })
 }
 
+function onSubmit(e) {
+  console.log(e)
+  console.log(this.callerName, this.callerReason, this.audioVideo)
+  axios.get('/dial')
+  .then(res => {
+    this.caller = res.data.caller
+    this.otConnect(res.data.apiKey, res.data.caller.sessionId, res.data.caller.token)
+  })
+  .catch(console.log)
+}
+
 export default {
   name: 'caller',
 
@@ -94,16 +142,14 @@ export default {
       insertMode: 'append',
       width: '100%',
       height: '100%'
-    }
+    },
+    callerName: null,
+    callerReason: null,
+    audioVideo: 'audioVideo'
   }),
 
   mounted() {
-    axios.get('/dial')
-    .then(res => {
-      this.caller = res.data.caller
-      this.otConnect(res.data.apiKey, res.data.caller.sessionId, res.data.caller.token)
-    })
-    .catch(console.log)
+    this.$refs.callerName.focus()
   },
 
   beforeDestroy () {
@@ -117,7 +163,8 @@ export default {
     errorHandler,
     successHandler,
     otConnect,
-    endCallHandler
+    endCallHandler,
+    onSubmit
   }
 
 }
