@@ -1,7 +1,7 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
-    <div class="uk-width-1-3@m uk-padding">
-      <h2>Agent</h2>
+    <div class="uk-width-1-3@m uk-height-viewport uk-panel-scrollable">
+      <h1 class="uk-h3 uk-padding-small">Agent</h1>
       <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
 
       <div v-for="caller in callers" :key="caller.callerId"
