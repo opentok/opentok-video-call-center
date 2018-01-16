@@ -1,7 +1,15 @@
 <template>
   <div class="route-agent uk-grid-collapse" uk-grid uk-height-viewport="expand: true">
     <div class="uk-width-1-3 uk-width-1-4@l uk-height-viewport uk-panel-scrollable" id="agent-info-screen">
-      <h1 class="uk-h3 uk-padding-small">Agent</h1>
+      <div uk-grid>
+        <div>
+          <h1 class="uk-h3 uk-padding-small">Agent #{{ agentid }}</h1>
+        </div>
+        <div>
+          <router-link to="/end" class="uk-button uk-button-danger uk-b">Exit</router-link>
+        </div>
+      </div>
+
       <p v-show="!callers.length" class="uk-text-lead">No callers connected</p>
 
       <div v-for="caller in callers" :key="caller.callerId"
@@ -59,6 +67,8 @@ import OT from '@opentok/client'
 import axios from 'axios'
 import OtPublisher from './ot-publisher'
 import OtSubscriber from './ot-subscriber'
+
+let fetchInterval = null
 
 function errorHandler(err) {
   console.log('Error', err)
@@ -180,8 +190,39 @@ function deleteCaller(callerId) {
   }
 }
 
-function fetchAgentData() {
-  axios('/agent/data')
+function connectAgent() {
+  axios.post('/agent')
+    .then(res => {
+      this.agentid = res.data.agentid
+      this.fetchCallersList()
+      fetchInterval = setInterval(this.fetchCallersList, 2500)
+    })
+    .catch(e => {
+      errorHandler('Unable to connect agent to service')
+      console.log('Unable to connect agent service', e)
+    })
+}
+
+function disconnectAgent() {
+  if (this.callerSession && this.callerSession.isConnected()) {
+    console.log('Disconnecting from session', this.callerSession.sessionId)
+    this.callerSession.disconnect()
+  }
+  if (fetchInterval) {
+    clearInterval(fetchInterval)
+  }
+  axios.post(`/agent/${this.agentid}/disconnect`)
+    .then(res => {
+      console.log('Agent disconnected')
+    })
+    .catch(e => {
+      errorHandler('Error disconnecting agent')
+      console.log('Error disconnecting agent', e)
+    })
+}
+
+function fetchCallersList() {
+  axios(`/agent/${this.agentid}/callers`)
     .then(res => {
       this.callers = res.data.callers
     })
@@ -197,6 +238,7 @@ export default {
 
   data: () => ({
     callers: [],
+    agentid: null,
     connections: new Map(),
     currentCaller: null,
     callerSession: null,
@@ -227,8 +269,16 @@ export default {
   },
 
   mounted() {
-    this.fetchAgentData()
-    setInterval(this.fetchAgentData, 2500)
+    this.connectAgent()
+    window.onbeforeunload = () => {
+      this.disconnectAgent()
+      return null
+    }
+  },
+
+  beforeDestroy () {
+    this.disconnectAgent()
+    window.onbeforeunload = null
   },
 
   methods: {
@@ -240,7 +290,9 @@ export default {
     setupSession,
     errorHandler,
     successHandler,
-    fetchAgentData,
+    fetchCallersList,
+    connectAgent,
+    disconnectAgent,
     endCall
   }
 }

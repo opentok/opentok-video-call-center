@@ -11,9 +11,6 @@
           <div>
             <router-link to="/" class="uk-button uk-button-primary uk-button-large">Return to home</router-link>
           </div>
-          <div>
-            <router-link to="/caller" class="uk-button uk-button-primary uk-button-large">Join as caller again</router-link>
-          </div>
         </div>
       </div>
     </div>

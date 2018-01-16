@@ -46,6 +46,9 @@ function createToken (sessionId, userId, userType = 'caller') {
 
 let callers = new Map()
 let callerCount = 0
+let agents = new Map()
+let agentCount = 0
+let pendingQueue = []
 
 function Caller (sessionId, token) {
   this.sessionId = sessionId
@@ -59,6 +62,7 @@ function Caller (sessionId, token) {
   this.callerName = null
   this.callerReason = null
   this.audioVideo = null
+  this.assignedAgent = null
 }
 
 Caller.prototype.status = function () {
@@ -104,6 +108,80 @@ Caller.prototype.unhold = function () {
   })
 }
 
+function Agent (name) {
+  this.agentid = (++agentCount).toString()
+  this.name = name ? name.trim() : 'N/a'
+  this.currentCallers = new Map()
+  console.log('New Agent connected', this.agentid)
+}
+
+Agent.prototype.assignPending = function (limit = 1) {
+  let c = pendingQueue.splice(0, limit)
+  for (const i in c) {
+    this.assignCaller(c[i])
+  }
+}
+
+Agent.prototype.assignCaller = function (c) {
+  c.assignedAgent = this.agentid
+  this.currentCallers.set(c.callerId, c)
+}
+
+Agent.prototype.removeCaller = function (callerid) {
+  this.currentCallers.delete(callerid)
+  this.assignPending(1)
+}
+
+Agent.prototype.disconnect = function () {
+  for (const c of this.currentCallers.values()) {
+    c.agentConnected = null
+    pendingQueue.push(c)
+  }
+  console.log('Agent disconnected', this.agentid)
+  agents.delete(this.agentid)
+}
+
+Agent.prototype.activeCallers = function () {
+  return Array.from(this.currentCallers.values()).filter(c => c.ready).map(c => c.status())
+}
+
+Agent.prototype.callerCount = function () {
+  return this.currentCallers.size
+}
+
+function sortAgentsByCallerCount () {
+  return Array.from(agents.values()).sort((a, b) => a.callerCount() - b.callerCount())
+}
+
+async function assignCaller (caller) {
+  if (agents.size) {
+    let agent = sortAgentsByCallerCount()[0]
+    agent.assignCaller(caller)
+    caller.assignedAgent = agent.agentid
+    return agent.agentid
+  }
+  pendingQueue.push(caller)
+  return null
+}
+
+async function removeCaller (callerid) {
+  let c = callers.get(callerid)
+  if (c) {
+    if (agents.has(c.assignedAgent)) {
+      let a = agents.get(c.assignedAgent)
+      a.removeCaller(callerid)
+    } else {
+      // Attempt removing caller from pending queue if no agent was assigned
+      for (const c in pendingQueue) {
+        if (pendingQueue[c].callerid === callerid) {
+          pendingQueue.splice(c, 1)
+        }
+      }
+    }
+    callers.delete(callerid)
+  }
+}
+
 async function handleConnectionCreated (data) {
   let conndata = JSON.parse(data.connection.data)
   if (!conndata.userId && !conndata.userType) {
@@ -125,7 +203,7 @@ async function handleConnectionDestroyed (data) {
     return
   }
   if (conndata.userType === 'caller') {
-    callers.delete(conndata.userId)
+    removeCaller(conndata.userId)
     console.log('Caller disconnected', conndata.userId)
   }
 }
@@ -144,7 +222,11 @@ app.post('/dial', (req, res, next) => {
   c.callerName = req.body.callerName
   c.callerReason = req.body.callerReason
   c.audioVideo = req.body.audioVideo
-  createSession()
+  assignCaller(c)
+    .then(i => {
+      c.assignedAgent = i
+      return createSession()
+    })
     .then(session => {
       c.sessionId = session.sessionId
       return createToken(session.sessionId, c.callerId, 'caller')
@@ -220,7 +302,7 @@ app.get('/call/:id/delete', (req, res, next) => {
     if (err) {
       console.log(err)
     }
-    callers.delete(req.params.id)
+    removeCaller(req.params.id)
     res.status(200).json({
       deleted: req.params.id
     })
@@ -239,9 +321,37 @@ app.get('/call/:id', (req, res, next) => {
   })
 })
 
-app.get('/agent/data', (req, res, next) => {
+app.get('/agent/:id/callers', (req, res, next) => {
+  const a = agents.get(req.params.id)
+  if (!a) {
+    const e = new Error(`Agent ID ${req.params.id} not found`)
+    e.status = 404
+    return next(e)
+  }
+  if (a.callerCount() < 3) {
+    a.assignPending(1)
+  }
+  res.status(200).json({ callers: a.activeCallers() })
+})
+
+app.post('/agent/:id/disconnect', (req, res, next) => {
+  const a = agents.get(req.params.id)
+  if (!a) {
+    const e = new Error(`Agent ID ${req.params.id} not found`)
+    e.status = 404
+    return next(e)
+  }
+  a.disconnect()
+  res.status(200).send()
+})
+
+app.post('/agent', (req, res, next) => {
+  let a = new Agent(req.body.name || 'N/A')
+  a.assignPending(3)
+  agents.set(a.agentid, a)
   res.status(200).json({
-    callers: Array.from(callers.values()).filter(c => c.ready).map(c => c.status())
+    agentid: a.agentid,
+    name: a.name
   })
 })
 
