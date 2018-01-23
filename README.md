@@ -122,9 +122,35 @@ These are the relevant files:
 
 A core part of this demo is managing caller queue and assigning callers to agents. All of this happens on the server side in `server.js`. It uses OpenTok's session monitoring to reliably determine when a caller has connected or disconnected.
 
-Call queue management is composed of four main pieces:
+Call queue management is composed of six main pieces:
 
-- `pendingQueue[]`: An array that stores callers who are yet to be assigned to any agent.
-- `assignCaller(caller)`: A function that takes a `Caller` instance as argument and assigns it to an agent.
+- `callers[]`: List of current callers. This is a `Map` that uses caller ID as key and its corresponding `Caller` instance as the value.
+- `agents[]`: List of active agents. This is another `Map` that uses agent ID as key and its corresponding `Agent` instance as the value.
+- `pendingQueue[]`: An array that stores callers (instances of `Caller`) who are yet to be assigned to any agent.
+- `assignCaller(caller)`: A function that takes a `Caller` instance as argument and assigns it to an agent. If no agent is connected, this function adds the given caller to `pendingQueue[]`.
 - `agent.assignPending(limit = 1)`: A method on `Agent` that assigns a number of callers from `pendingQueue[]` to given agent in FIFO mode - callers who were in the queue earlier are assigned first.
 - `removeCaller(callerID)`: A function that removes a caller from list of active callers and also from `pendingQueue[]`.
+
+Here is a step-by-step description of how the call queue logic is handled:
+
+1. When a caller connects to the application, the caller screen access the HTTP endpoint at `GET /dial`.
+    - This creates a new instance of the `Caller` constructor by calling `new Caller()` based on the caller's supplied details - name, reason and whether the call is audio-only
+    - The caller is initial marked as not ready.
+    - Then, it tries to assign the caller to an agent by calling `assignCaller(caller)`.
+    - Then, it creates a new OpenTok session and token for this caller and sends out a response with the caller status.
+2. The caller screen on the frontend then uses this information to connect to the given OpenTok session and starts publishing the caller's stream.
+3. The server listens to OpenTok session monitoring callbacks in the HTTP endpoint `POST /ot_callback`.
+   - When a caller connects to the session, OpenTok posts data with caller's connection information to this endpoint. The endpoint calls the `handleConnectionCreated()` handler to match the connection data with the caller ID and marks the caller as ready.
+   - Similarly, when a caller disconnects from OpenTok, OpenTok posts the caller's connection information. Then, the endpoint cleans up the caller info by calling `removeCaller(callerID)`.
+4. When an agent joins, the agent interface calls the HTTP endpoint at `POST /agent`.
+    - This creates a new instance of the `Agent` constructor.
+    - Then it attempts to assign first 3 pending callers by calling `agent.assignPending(3)`.
+    - Then it returns the agent ID.
+5. The agent screen then keeps on polling the list of callers assigned to the current agent by hitting the HTTP endpoint at `/agent/:id/callers`.
+    - This attempts to assign the first caller in the `pendingQueue[]` by calling `agent.assignPending(1)` if the agent has less than 3 callers assigned at that point.
+    - Then it returns list of currently assigned callers who are marked as ready (see step 3 above). This ensures that the agent screen only sees list of callers who are currently connected to OpenTok.
+6. When a caller needs to be removed, then frontend calls the HTTP endpoint at `GET /call/:id/delete`. This calls `removeCaller(callerID)` internally. The frontend can call this HTTP endpoint when any of these events happen:
+    - Caller ends call by clicking "End call" button in the caller's screen
+    - Agent ends current call by clicking "End call" button in the agent's screen
+    - Caller closes their browser window when call is ongoing
+7. When agent exits, either by closing their browser window or by clicking the "Exit" button, then existing callers assigned to the agent are moved to `pendingQueue[]`. That way, other agents can pick up those callers.
