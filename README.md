@@ -88,3 +88,17 @@ This application builds a simple queue where callers can wait for agents to talk
 - Agent can resume a call.
 - Agent can end the call they are connected to. This will make the caller exit as well.
 - Agent can switch between callers that agent has been assigned. If agent switches to another caller, then the current caller is put on hold.
+
+### Server
+
+Backend logic for this demo is present in [**server.js**](server.js). These are what the server does:
+
+- Call OpenTok REST API using the [OpenTok Node SDK](https://tokbox.com/developer/sdks/node/).
+- Create functions to generate OpenTok sessions and tokens.
+- Define `Caller` constructor used to represent a caller and provide methods to perform actions on each caller.
+- Define `Agent` constructor used to represent an agent and provide methods to perform actions on each agent.
+- Manage pending callers queue - A list of callers who are yet to be assigned to any agent.
+- Perform assignment of callers to available agents.
+- Send [signals through the OpenTok REST API](https://tokbox.com/developer/guides/signaling/rest/) to coordinate interactions between agent and caller.
+- Handle OpenTok session monitoring callbacks for connection created and connection destroyed events. This is used to keep track of when callers are ready to join agents and when they have left.
+- Provides HTTP interfaces for frontend to communicate, with endpoints for agents and callers.
