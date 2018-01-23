@@ -63,3 +63,28 @@ For development use, you can compile assets in development mode and launch serve
 ```sh
 $ npm run dev
 ```
+
+## Walkthrough
+
+This application builds a simple queue where callers can wait for agents to talk to them. It uses NodeJS as the backend and VueJS in the frontend.
+
+### Application flow
+
+#### Callers
+
+- Callers provide their name and reason for call when joining. They can also select whether they want to join as audio-only or using both audio and video.
+- Once callers have joined, they wait in queue till an agent joins that call.
+- Callers remain connected when they have been put on hold or if agent has disconnected.
+- Callers can decide to exit the call at any time.
+- Callers exit if agent triggers call end.
+
+#### Agents
+
+- Agents join and wait for callers to be available.
+- Each agent can be assigned multiple callers. Assignment is done using least connections strategy - when a new caller joins, the caller is assigned to the agent with least number of assigned callers.
+- When a caller is assigned to agent, agent's caller list is updated.
+- Agent can join one caller at a time.
+- Agent can put an existing caller on hold to join another caller.
+- Agent can resume a call.
+- Agent can end the call they are connected to. This will make the caller exit as well.
+- Agent can switch between callers that agent has been assigned. If agent switches to another caller, then the current caller is put on hold.
