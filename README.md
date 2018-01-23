@@ -68,6 +68,8 @@ $ npm run dev
 
 This application builds a simple queue where callers can wait for agents to talk to them. It uses NodeJS as the backend and VueJS in the frontend.
 
+Note: The server stores all data in-memory for the purpose of this demo. A real-world application should use some database instead.
+
 ### Application flow
 
 #### Callers
@@ -102,3 +104,16 @@ Backend logic for this demo is present in [**server.js**](server.js). These are 
 - Send [signals through the OpenTok REST API](https://tokbox.com/developer/guides/signaling/rest/) to coordinate interactions between agent and caller.
 - Handle OpenTok session monitoring callbacks for connection created and connection destroyed events. This is used to keep track of when callers are ready to join agents and when they have left.
 - Provides HTTP interfaces for frontend to communicate, with endpoints for agents and callers.
+
+### Frontend
+
+The frotend is a simple single-page application (SPA) built on VueJS with vue-router to route between agent and caller screens. It uses UIKit for drawing the UI. The demo intentionally keeps things simple without breaking down code into further components or customizing much of the UI elements.
+
+These are the relevant files:
+
+- [`app.js`](app.js): Bootstrapping script that loads vue and vue-router and mounts routes from the components.
+- [`components/`](components): Directory where all vue components are stored
+  - [`components/home.vue`](components/home.vue): Template for the homepage of the demo
+  - [`components/caller.vue`](components/caller.vue): Component used for the caller screen. This sets up the caller's initial form and then manages the whole lifecycle of the caller.
+  - [`components/agent.vue`](components/agent.vue): Component used for the agent screen. This manages entire lifecycle of the agent.
+  - [`components/ot-publisher.vue`](components/ot-publisher.vue) and [`components/ot-subscriber.vue`](components/ot-subscriber.vue) provide reusable components for OpenTok publisher and subscriber objects.
