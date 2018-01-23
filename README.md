@@ -118,6 +118,17 @@ These are the relevant files:
   - [`components/agent.vue`](components/agent.vue): Component used for the agent screen. This manages entire lifecycle of the agent.
   - [`components/ot-publisher.vue`](components/ot-publisher.vue) and [`components/ot-subscriber.vue`](components/ot-subscriber.vue) provide reusable components for OpenTok publisher and subscriber objects.
 
+#### Agent screen
+
+The agent screen has all the magic in this demo. Here is how agent screen handles callers in the frotnend:
+
+1. Each caller uses a different OpenTok session.
+2. When agent wants to join a caller, the frontend retrieves a token for the agent for the session of that caller. Then, it connects agent to that session, publishes agent stream and subscribes to existing caller stream.
+3. When agent wants to put a caller on hold, agent unpublishes their stream and disconnects from the session.
+4. When agent wants to resume talking to a caller they have put on hold, step 2 is repeated.
+
+So, the agent keeps on switching between OpenTok sessions - connecting to them and disconnecting as required. This whole process takes a reasonably short time. At each stage, the application sends out signals for each event so that the client UI can adjust accordingly.
+
 ### Call queue management
 
 A core part of this demo is managing caller queue and assigning callers to agents. All of this happens on the server side in `server.js`. It uses OpenTok's session monitoring to reliably determine when a caller has connected or disconnected.
