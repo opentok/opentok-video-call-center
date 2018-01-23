@@ -117,3 +117,14 @@ These are the relevant files:
   - [`components/caller.vue`](components/caller.vue): Component used for the caller screen. This sets up the caller's initial form and then manages the whole lifecycle of the caller.
   - [`components/agent.vue`](components/agent.vue): Component used for the agent screen. This manages entire lifecycle of the agent.
   - [`components/ot-publisher.vue`](components/ot-publisher.vue) and [`components/ot-subscriber.vue`](components/ot-subscriber.vue) provide reusable components for OpenTok publisher and subscriber objects.
+
+### Call queue management
+
+A core part of this demo is managing caller queue and assigning callers to agents. All of this happens on the server side in `server.js`. It uses OpenTok's session monitoring to reliably determine when a caller has connected or disconnected.
+
+Call queue management is composed of four main pieces:
+
+- `pendingQueue[]`: An array that stores callers who are yet to be assigned to any agent.
+- `assignCaller(caller)`: A function that takes a `Caller` instance as argument and assigns it to an agent.
+- `agent.assignPending(limit = 1)`: A method on `Agent` that assigns a number of callers from `pendingQueue[]` to given agent in FIFO mode - callers who were in the queue earlier are assigned first.
+- `removeCaller(callerID)`: A function that removes a caller from list of active callers and also from `pendingQueue[]`.
