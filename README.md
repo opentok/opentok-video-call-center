@@ -165,3 +165,21 @@ Here is a step-by-step description of how the call queue logic is handled:
     - Agent ends current call by clicking "End call" button in the agent's screen
     - Caller closes their browser window when call is ongoing
 7. When agent exits, either by closing their browser window or by clicking the "Exit" button, then existing callers assigned to the agent are moved to `pendingQueue[]`. That way, other agents can pick up those callers.
+
+## Development and Contributing
+
+Interested in contributing? We :heart: pull requests! See the
+[Contribution](CONTRIBUTING.md) guidelines.
+
+## Getting Help
+
+We love to hear from you so if you have questions, comments or find a bug in the project, let us know! You can either:
+
+- Open an issue on this repository
+- See <https://support.tokbox.com/> for support options
+- Tweet at us! We're [@VonageDev](https://twitter.com/VonageDev) on Twitter
+- Or [join the Vonage Developer Community Slack](https://developer.nexmo.com/community/slack)
+
+## Further Reading
+
+- Check out the Developer Documentation at <https://tokbox.com/developer/>
