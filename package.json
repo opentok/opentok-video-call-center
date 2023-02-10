@@ -40,7 +40,7 @@
     "@opentok/client": "^2.12.2",
     "axios": "^0.21.2",
     "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
+    "babel-loader": "^8.0.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-stage-3": "^6.24.1",
     "body-parser": "^1.20.1",
