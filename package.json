@@ -44,7 +44,7 @@
     "@babel/plugin-syntax-import-meta": "^7.10.4",
     "@babel/preset-env": "^7.0.0",
     "@opentok/client": "^2.12.2",
-    "axios": "^0.21.2",
+    "axios": "^1.0.0",
     "babel-loader": "^8.0.0",
     "body-parser": "^1.20.1",
     "compression": "^1.7.1",
