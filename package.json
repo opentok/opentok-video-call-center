@@ -46,7 +46,7 @@
     "@opentok/client": "^2.12.2",
     "axios": "^0.21.2",
     "babel-loader": "^8.0.0",
-    "body-parser": "^1.20.1",
+    "body-parser": "^2.0.0",
     "compression": "^1.7.1",
     "cross-env": "^5.0.5",
     "css-loader": "^5.0.0",
